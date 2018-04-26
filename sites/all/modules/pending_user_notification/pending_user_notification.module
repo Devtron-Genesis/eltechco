@@ -1,5 +1,4 @@
 <?php
-// $Id: pending_user_notification.module,v 1.3.4.1 2011/01/14 02:48:26 hakulicious Exp $
 
 define ('USERS_PER_PAGE', 5);
 
@@ -14,7 +13,40 @@ function pending_user_notification_menu()
 		'access arguments' => array('administer users'),
 		'type' => MENU_CALLBACK,
 	);
+
+	$menu['admin/config/people/pending_user_notification'] = array
+	(
+		'title' => 'Pending User Notifications',
+		'description' => 'Settings for the pending user notification block module',
+		'page callback' => 'drupal_get_form',
+		'page arguments' => array('pending_user_notifications_settings'),
+		'file' => 'includes/pending_user_notification.pages.inc',
+		'access arguments' => array('administer pending user notification settings'),
+	);
+
+	$menu['pending_user_notification/%user/activate'] = array
+	(
+		'title' => 'Activate account',
+		'page callback' => 'drupal_get_form',
+		'page arguments' => array('pending_user_notification_approve_user', 1),
+		'file' => 'includes/pending_user_notification.pages.inc',
+		'access arguments' => array('administer users'),
+		'type' => MENU_CALLBACK,
+	);
+
 	return $menu;
+}
+
+function pending_user_notification_permission()
+{
+	return array
+	(
+		'administer pending user notification settings' => array
+		(
+			'title' => t('administer pending user notification settings'),
+			'description' => t('Allows administrators to administer the pending user notifications block'),
+		),
+	);
 }
 
 function pending_user_notification_ajax_callback($page_number, $type = 'ajax')
@@ -67,11 +99,6 @@ function pending_user_notification_block_info()
 
 function pending_user_notification_block_view($delta = '')
 {
-	$block = array
-	(
-		'subject' => '',
-		'content' => '',
-	);
 	if($delta == 'pending_user_not_p_users')
 	{
 		$block['subject'] = t('Pending User Accounts');
@@ -79,68 +106,75 @@ function pending_user_notification_block_view($delta = '')
 		{
 			$block_data = (isset($_GET['pun_page'])) ? pending_user_notification_block_contents($_GET['pun_page']) : pending_user_notification_block_contents();
 
-			if($block_data === FALSE)
+			if($block_data)
 			{
-				return $block;
-			}
-			$path = drupal_get_path('module', 'pending_user_notification');
-			$block['content'] = array
-			(
-				'#markup' => $block_data,
-				'#attached' => array
+				$path = drupal_get_path('module', 'pending_user_notification');
+				$block['content'] = array
 				(
-					'css' => array
+					'#markup' => $block_data,
+					'#attached' => array
 					(
-						$path . '/css/pending_user_notification.css'
+						'css' => array
+						(
+							$path . '/css/pending_user_notification.css'
+						),
+						'js' => array
+						(
+							'misc/jquery.form.js',
+							'misc/ajax.js',
+						),
 					),
-					'js' => array
-					(
-						'misc/jquery.form.js',
-						'misc/ajax.js',
-					),
-				),
-			);
+				);
+			}
 		}
+
+		return $block;
 	}
-	return $block;
 }
 
 function pending_user_notification_block_contents($page = 1)
 {
 	$ua_users = get_pending_user_notification_data(USERS_PER_PAGE, ($page * USERS_PER_PAGE) - USERS_PER_PAGE);
 
-	$header = array(t('Username'), t('Edit'), t('Delete'));
-	
+	$header = array(t('Username'), t('Activate'), t('Delete'));
+
 	$rows = array();
 	foreach($ua_users as $user)
 	{
 		$row = array();
 		$row[] = l($user->name, 'user/' . $user->uid);
-		$row[] = l(t('Edit'), 'user/' . $user->uid . '/edit');
+		$row[] = l(t('Activate'), 'pending_user_notification/' . $user->uid . '/activate', array('query' => drupal_get_destination()));
 		$row[] = l(t('Delete'), 'user/' . $user->uid . '/cancel');
 		$rows[] = $row;
 	}
 	$output = theme('table', array('header' => $header, 'rows' => $rows));
 	$query = db_select('users', 'u');
-	
+
 	$query
 		->condition('u.status', 0)
 		->condition('u.created', 0, '>')
-		->condition('u.login', 0)
-		->orderBy('u.created');
+		->condition('u.login', 0);
 	$query->addExpression('COUNT(u.uid)', 'count');
 	$total_users = $query->execute()->fetchField();
-	
-	if(!$total_users)
+
+	if($total_users)
 	{
-		return FALSE;
-	}
-	$total_pages = ceil($total_users/USERS_PER_PAGE);
+		$total_pages = ceil($total_users/USERS_PER_PAGE);
 	
-	if($total_pages > 1)
-	{
-		$output .= theme('pending_user_notification_pagination', array('current_page' => $page, 'total_pages' => $total_pages));
+		if($total_pages > 1)
+		{
+			$output .= theme('pending_user_notification_pagination', array('current_page' => $page, 'total_pages' => $total_pages));
+		}
 	}
+	elseif(variable_get('pun_show_empty_block', 0))
+	{
+		$output = t('There are currently no pending users');
+	}
+	else
+	{
+		$output = FALSE;
+	}
+
 	return $output;
 }
 

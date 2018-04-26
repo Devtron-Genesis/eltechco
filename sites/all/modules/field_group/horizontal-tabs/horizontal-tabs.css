@@ -32,14 +32,17 @@ fieldset.vertical-tabs-pane fieldset.horizontal-tabs-pane > legend {
 
 /* Layout of each tab */
 .horizontal-tabs ul.horizontal-tabs-list li {
-  
+  background: #eee;
+  border-right: 1px solid #ccc; /* LTR */
+  padding: 1px;
   padding-top: 0;
   margin: 0;
   min-width: 5em; /* IE7 */
   float: left; /* LTR */
 }
 .horizontal-tabs ul.horizontal-tabs-list li.selected {
-   padding: 0 0 1px 0;
+  background-color: #fff;
+  padding: 0 0 1px 0;
 }
 .horizontal-tabs ul.horizontal-tabs-list li a {
   display: block;
@@ -48,6 +51,7 @@ fieldset.vertical-tabs-pane fieldset.horizontal-tabs-pane > legend {
 }
 .horizontal-tabs ul.horizontal-tabs-list li a:hover {
   outline: none;
+  background-color: #ededdd;
 }
 .horizontal-tabs ul.horizontal-tabs-list li:hover,
 .horizontal-tabs ul.horizontal-tabs-list li:focus {
@@ -69,7 +73,11 @@ fieldset.vertical-tabs-pane fieldset.horizontal-tabs-pane > legend {
   padding: 0.5em 0.6em 0.3em 0.6em;
   position:relative;
   top: 0px;
-}.horizontal-tabs ul.horizontal-tabs-list .summary {
+}
+.horizontal-tabs ul.horizontal-tabs-list .selected strong {
+  color: #000;
+}
+.horizontal-tabs ul.horizontal-tabs-list .summary {
   display: block;
 }
 .horizontal-tabs ul.horizontal-tabs ul.horizontal-tabs-list .summary {

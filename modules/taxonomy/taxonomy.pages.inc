@@ -51,7 +51,7 @@ function taxonomy_term_page($term) {
     '#suffix' => '</div>',
     'term' => taxonomy_term_view($term, 'full'),
   );
-/*
+
   if ($nids = taxonomy_select_nodes($term->tid, TRUE, variable_get('default_nodes_main', 10))) {
     $nodes = node_load_multiple($nids);
     $build += node_view_multiple($nodes);
@@ -63,10 +63,10 @@ function taxonomy_term_page($term) {
   else {
     $build['no_content'] = array(
       '#prefix' => '<p>',
-      '#markup' => t(''),
+      '#markup' => t('There is currently no content classified with this term.'),
       '#suffix' => '</p>',
     );
-  }*/
+  }
   return $build;
 }
 
@@ -150,7 +150,7 @@ function taxonomy_autocomplete($field_name = '', $tags_typed = '') {
 
     $query = db_select('taxonomy_term_data', 't');
     $query->addTag('translatable');
-    $query->addTag('term_access');
+    $query->addTag('taxonomy_term_access');
 
     // Do not select already entered terms.
     if (!empty($tags_typed)) {
