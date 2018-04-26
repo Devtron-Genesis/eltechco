@@ -1,0 +1,7 @@
+name = Commerce Electronic Fund Transfer 
+description = Provides an Electronic Fund Transfer payment method for Drupal Commerce.
+package = Commerce - Payment
+dependencies[] = commerce
+dependencies[] = commerce_payment
+core = 7.x
+ 

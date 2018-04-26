@@ -1,0 +1,160 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function commerce_moa_menu() {
+  $items = array();
+
+  $items['admin/commerce/config/moa'] = array(
+    'title' => 'Minimum & Maximum Order Amount',
+    'description' => 'Configure the default minimum & maximum order amount value.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('commerce_moa_settings_form'),
+    'access arguments' => array('configure store'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+/**
+ * Builds the minimum order amount settings form.
+ */
+function commerce_moa_settings_form($form, &$form_state) {
+  $form = array();
+
+  $form['commerce_minimum_order_amount'] = array(
+    '#type' => 'textfield',
+    '#size' => 15,
+    '#title' => t('Minimum Order Amount'),
+    '#description' => t('The default minimum order amount. Ex: 11.99 if set 0 then dislable'),
+    '#default_value' => commerce_moa_default_minimum(),
+    '#field_suffix' => commerce_default_currency(),
+  );
+  $form['commerce_maximum_order_amount'] = array(
+    '#type' => 'textfield',
+    '#size' => 15,
+    '#title' => t('Maximum Order Amount'),
+    '#description' => t('The default maximum order amount. Ex: 11.99 if set 0 then dislable'),
+    '#default_value' => commerce_moa_default_maximum(),
+    '#field_suffix' => commerce_default_currency(),
+  );
+  $form['commerce_minimum_order_quantity'] = array(
+    '#type' => 'textfield',
+    '#size' => 15,
+    '#title' => t('Minimum Order Quantity'),
+    '#description' => t('The default minimum order quantity. Ex: 2 if set 0 then disable'),
+    '#default_value' => commerce_moa_default_quantity(),
+  );
+  $form['commerce_minimum_currency_format'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Currency format'),
+    '#description' => t('The default currency format if checked: 10.00 USD, unchecked: $10.00'),
+    '#default_value' => commerce_moa_currency_format(),
+  );
+
+  $form['#validate'] = array('commerce_moa_settings_form_validate');
+
+  return system_settings_form($form);
+}
+
+/**
+ * Validate the settings form
+ */
+function commerce_moa_settings_form_validate($form, &$form_state) {
+  $maximum_value = (float) $form_state['values']['commerce_maximum_order_amount'];
+  $minimum_value = (float) $form_state['values']['commerce_minimum_order_amount'];
+  $minimum_quantity = (float) $form_state['values']['commerce_minimum_order_quantity'];
+
+  if (($maximum_value > 0 && $minimum_value > 0) && ($maximum_value < $minimum_value)) {
+    form_set_error('moa', t('The maximum value is greater than minimum value.'));
+  }
+  if ($minimum_quantity < 0) {
+    form_set_error('moa', t('The minimum order quantity cannot be less than zero.'));
+  }
+}
+
+/**
+ * Return default minimum order amount value, if set is 0 then disable
+ */
+function commerce_moa_default_minimum() {
+  return variable_get('commerce_minimum_order_amount', 0);
+}
+
+/**
+ * Return default maximum order amount value, if set is 0 then disable
+ */
+function commerce_moa_default_maximum() {
+  return variable_get('commerce_maximum_order_amount', 0);
+}
+
+/**
+ * Return default maximum order amount value, if set is 0 then disable
+ */
+function commerce_moa_default_quantity() {
+  return variable_get('commerce_minimum_order_quantity', 0);
+}
+
+/**
+ * Return default maximum order amount value, if set is 0 then disable
+ */
+function commerce_moa_currency_format() {
+  return variable_get('commerce_minimum_currency_format', 1);
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function commerce_moa_form_alter(&$form, &$form_state, $form_id) {
+  $minimum_value = (float) commerce_moa_default_minimum();
+  $maximum_value = (float) commerce_moa_default_maximum();
+  $minimum_quantity = commerce_moa_default_quantity();
+
+  if ($minimum_value > 0 || $maximum_value > 0 || $minimum_quantity > 0) {
+    if ($form_id == 'views_form_commerce_cart_form_default') {
+      $form['actions']['checkout']['#validate'][] = 'commerce_moa_checkout_form_validate';
+    } elseif ($form_id == 'commerce_checkout_form_checkout') {
+      $form['buttons']['continue']['#validate'][] = 'commerce_moa_checkout_form_validate';
+    } elseif ($form_id == 'commerce_checkout_form_review') {
+      $form['buttons']['continue']['#validate'][] = 'commerce_moa_checkout_form_validate';
+    }
+  }
+}
+
+/**
+ * The validate when direct access to checkout page
+ */
+function commerce_moa_checkout_form_validate($form, &$form_state) {
+  $order = commerce_order_load($form_state['order']->order_id);
+  $balance = $order->commerce_order_total['und'][0];
+  $total = commerce_currency_amount_to_decimal($balance['amount'], $balance['currency_code']);
+  $minimum_quantity = commerce_moa_default_quantity();
+  $minimum_value = (float) commerce_moa_default_minimum();
+  $maximum_value = (float) commerce_moa_default_maximum();
+  //
+  if (1 == commerce_moa_currency_format()) {
+    $minimum_value_error = number_format(commerce_moa_default_minimum(), 2, '.', '') . ' ' . $balance['currency_code'];
+    $maximum_value_error = number_format(commerce_moa_default_maximum(), 2, '.', '') . ' ' . $balance['currency_code'];
+  } else {
+    $minimum_value_error = commerce_currency_get_symbol($balance['currency_code']) . number_format(commerce_moa_default_minimum(), 2, '.', '');
+    $maximum_value_error = commerce_currency_get_symbol($balance['currency_code']) . number_format(commerce_moa_default_maximum(), 2, '.', '');
+  }
+  //
+  if ($minimum_quantity > 0) {
+    $order_wrapper = entity_metadata_wrapper('commerce_order', $form_state['order']);
+    $order_wrapper->commerce_line_items;
+    foreach ($order_wrapper->commerce_line_items as $index => $line_item_wrapper) {
+      if (intval($line_item_wrapper->quantity->value()) < $minimum_quantity) {
+        form_set_error('order', t('This store requires minimum quantity order of %minimum_quantity per item.', array('%minimum_quantity' => $minimum_quantity)));
+      }
+    }
+  }
+  //
+  if ($minimum_value > 0 && $total < $minimum_value) {
+    form_set_error('order', t('This store requires minimum order of %minimum_amount.', array('%minimum_amount' => $minimum_value_error)));
+  }
+  if ($maximum_value > 0 && $total > $maximum_value) {
+    form_set_error('order', t('This store requires maximum order of %maximum_amount.', array('%maximum_amount' => $maximum_value_error)));
+  }
+}

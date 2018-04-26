@@ -1,0 +1,13 @@
+; $Id: pending_user_notification.info,v 1.1.4.1 2011/01/14 02:48:26 hakulicious Exp $
+name = Pending User Notification
+description = Creates a block displaying list of users that have signed up for accounts and are awaiting activation by an administrator. 
+core = 7.x
+package = Administration
+
+files[] = pending_user_notification.module
+; Information added by drupal.org packaging script on 2011-01-14
+version = "7.x-1.0-rc1"
+core = "7.x"
+project = "pending_user_notification"
+datestamp = "1294973512"
+

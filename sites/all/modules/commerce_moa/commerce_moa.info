@@ -1,0 +1,15 @@
+name = Commerce Minimum & Maximum Order Amount
+description = Allow set minimum & maximum order amount in cart
+package = Commerce (contrib)
+core = 7.x
+
+files[] = commerce_moa.module
+
+dependencies[] = commerce_cart
+
+; Information added by drupal.org packaging script on 2012-12-11
+version = "7.x-1.5"
+core = "7.x"
+project = "commerce_moa"
+datestamp = "1355204174"
+

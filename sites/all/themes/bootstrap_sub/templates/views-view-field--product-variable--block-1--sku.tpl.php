@@ -1,0 +1,2 @@
+<?php //echo '<pre>'; print_r($row);die;?>
+<label><?php print $output?></label> <a class="button openrow control-<?php echo $row->commerce_product_field_data_field_products_items_product_id?>" onclick="javascript:return openRow('<?php echo $row->commerce_product_field_data_field_products_items_product_id?>')">Info & Purchase </a>

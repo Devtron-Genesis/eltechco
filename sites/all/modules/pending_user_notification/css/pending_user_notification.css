@@ -1,0 +1,26 @@
+/* $Id: pending_user_notification.css,v 1.1.4.1 2011/01/14 02:48:26 hakulicious Exp $ */
+.block-pending_user_notification tbody th
+{
+	border:none;
+}
+
+#pending_user_notification_pagination
+{
+	text-align:center;
+}
+
+#pending_user_notification_pagination .progress-disabled
+{
+	float:none;
+}
+
+.current_pagination
+{
+	font-size:1.2em;
+	font-weight:bold;
+}
+
+.pagination_arrow
+{
+	color:#999;
+}

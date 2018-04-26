@@ -1,0 +1,160 @@
+<?php
+
+/**
+ * Implements hook_commerce_payment_method_info().
+ */
+function commerce_eft_payment_commerce_payment_method_info() {
+  $payment_methods = array();
+
+  $payment_methods['commerce_eft_payment'] = array(
+    'title' => t('Pay on Account'),
+    'description' => t('Pay on Account'),
+    'active' => TRUE,
+  );
+
+  return $payment_methods;
+}
+
+/**
+ * Payment method callback: submit form.
+ */
+function commerce_eft_payment_submit_form($payment_method, $pane_values, $checkout_pane, $order) {
+ 
+  $form = array();
+
+  $form['business_order_details'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Business & Order details'), 
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
+  );
+  $form['business_order_details']['full_name'] = array(
+    '#type' => 'textfield', 
+    '#title' => t('Full Name'),  
+    '#required' => TRUE, 
+  ); 
+  $form['business_order_details']['contact_number'] = array(
+    '#type' => 'textfield', 
+    '#title' => t('Contact Number'),  
+	'#required' => TRUE 
+  );
+  $form['business_order_details']['order_number'] = array(
+    '#type' => 'textfield', 
+    '#title' => t('Purchase order Number'),  
+	'#required' => FALSE 
+  );   
+  /*
+  $form['business_order_details']['po_number'] = array(
+    '#type' => 'textfield', 
+    '#title' => t('PO Number'),  
+    '#required' => TRUE, 
+  );   
+  $form['business_order_details']['order_contact'] = array(
+    '#type' => 'textfield', 
+    '#title' => t('Order Contact'),  
+    '#required' => TRUE, 
+  ); 
+  */
+  $form['business_order_details']['authorization'] = array(
+    '#type' => 'checkbox', 
+    '#title' => t('I carry authority to authorize this order.'),  
+    '#required' => TRUE, 
+  ); 
+  $form['business_order_details']['payment_instruction_hidden'] = array(
+    '#type' => 'hidden',
+    '#value' =>   $order->payment_methods['commerce_eft_payment|commerce_payment_commerce_eft_payment']['settings']['eft_payment_instructions']['value']
+  ); 
+  $form['business_order_details']['payment_instruction'] = array(
+    '#markup' =>   $order->payment_methods['commerce_eft_payment|commerce_payment_commerce_eft_payment']['settings']['eft_payment_instructions']['value']
+  ); 
+  
+  return $form;
+}
+
+/**
+ * Payment method callback: submit form validation.
+ */
+function commerce_eft_payment_submit_form_validate($payment_method, $pane_form, $pane_values, $order, $form_parents = array()) {
+  // Validate the credit card fields. 
+  if(0==1){
+        return false;
+  }
+}
+
+/**
+ * Payment method callback: submit form submission.
+ */
+function commerce_eft_payment_submit_form_submit($payment_method, $pane_form, $pane_values, $order, $charge) {
+  $order->data['commerce_eft_payment'] = $pane_values; 
+   commerce_eft_payment_transaction($payment_method, $order, $charge, $pane_values );
+}
+
+/**
+ * Creates an example payment transaction for the specified charge amount.
+ *
+ * @param $payment_method
+ *   The payment method instance object used to charge this payment.
+ * @param $order
+ *   The order object the payment applies to.
+ * @param $charge
+ *   An array indicating the amount and currency code to charge.
+ * @param $name
+ *   The name entered on the submission form.
+ */
+function commerce_eft_payment_transaction($payment_method, $order, $charge, $pane_values) {
+  $transaction = commerce_payment_transaction_new('commerce_eft_payment', $order->order_id);
+  $transaction->instance_id = $payment_method['instance_id'];
+  $transaction->amount = $charge['amount'];
+  $transaction->currency_code = $charge['currency_code'];
+  $transaction->status = COMMERCE_PAYMENT_STATUS_SUCCESS;
+  $transaction->message = '<p style="font-size:20px;font-weight:bold;">Pay on Account</p>';
+  $transaction->message.= 'Business Name: @full_name <br>';
+  $transaction->message.= 'Contact Number: @contact_number <br>';
+  $transaction->message.= 'Purchase order Number: @order_number <br>';
+  /*
+  $transaction->message.= 'PO Number: @po <br>';
+  $transaction->message.= 'Order Contact: @contact <br>';
+  */
+  $transaction->message.= '!payment_instruction <br>';
+  
+  $transaction->message_variables['@full_name'] = $pane_values['business_order_details']['full_name'];
+  $transaction->message_variables['@contact_number'] = $pane_values['business_order_details']['contact_number'];
+  $transaction->message_variables['@order_number'] = $pane_values['business_order_details']['order_number'];
+  /*
+  $transaction->message_variables['@po'] = $pane_values['business_order_details']['po_number'];
+  $transaction->message_variables['@contact'] = $pane_values['business_order_details']['order_contact'];
+  */
+  $transaction->message_variables['!payment_instruction'] = $pane_values['business_order_details']['payment_instruction_hidden'];
+
+  commerce_payment_transaction_save($transaction);
+  return $transaction;
+}
+
+/**
+ * Payment method callback: settings form.
+ */
+function commerce_eft_payment_settings_form($settings = NULL) {
+  $form = array();
+    
+  $form['eft_payment_instructions'] = array(
+    '#type' => 'text_format',
+    '#title' => t('Payment instructions'),
+    '#description' => t('Instructions for customers on the checkout page.'),
+    '#default_value' => isset($settings['eft_payment_instructions']) ? $settings['eft_payment_instructions']['value'] : '',
+    '#required' => FALSE,
+    '#rows' => 3,
+  );
+
+  return $form;
+}
+
+// block all of the commerce auto-emails
+function commerce_eft_payment_mail_alter( &$message ) {
+    // Remember to import check out rules email notification
+    // Please refer to checkout_rules_admin_export.inc and checkout_rules_visitors_export.inc
+    // dsm( $message['key'] ); 
+    // find the key to block  
+    if( $message['key'] == 'commerce_order_order_confirmation') {
+        $message['send'] = FALSE;
+    }
+}

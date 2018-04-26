@@ -1,0 +1,15 @@
+name = Commerce Pricelists Feeds
+description = Feeds for Pricelists
+core = 7.x
+package = Commerce (contrib)
+
+files[] = plugins/FeedsCommercePricelistItemProcessor.inc
+
+dependencies[] = feeds
+dependencies[] = commerce_pricelist
+; Information added by Drupal.org packaging script on 2015-03-19
+version = "7.x-1.0-alpha7"
+core = "7.x"
+project = "commerce_pricelist"
+datestamp = "1426772094"
+

@@ -1,0 +1,379 @@
+<?php
+  function tvn_page_theme() {
+    return array(
+      /*
+	  'page_realisaties' => array(
+        'variables' => array('data' => NULL),
+        'template' => 'templates/page_realisaties'
+      ),
+	  'page_occasiewagens' => array(
+        'variables' => array('data' => NULL),
+        'template' => 'templates/page_occasiewagens'
+      ),
+	  */
+    );
+  }
+function tvn_page_menu(){
+	$items= array();
+		$items['removeCart'] = array(
+	      'title' => t(''),
+	      'page callback' => '_tvn_removeCart',
+	      'access arguments' => array('access content'),
+	      'type' => MENU_CALLBACK
+	    );
+    return $items;
+	}
+	function _tvn_removeCart(){
+		//echo "aaa";
+		if(isset($_GET['item_id'])){
+			
+			$lineItem = $_GET['item_id'];
+			if(commerce_line_item_delete($lineItem)){
+				echo 'success';
+			}else{
+				echo 'fall';
+			}		
+		}
+		die;
+	}
+function tvn_page_get_referencing_node_id($product) {
+  $query = db_query("SELECT `entity_id` FROM {field_data_field_products_items} WHERE `field_products_items_product_id` = '".$product."' LIMIT 1 ");
+  foreach($query as $row){
+	  $nid = $row->entity_id;
+  }
+  return $nid;
+}	
+function tvn_page_entity_property_info_alter(&$info) {
+	
+	
+}	
+function extra_check_out_form_validate($form, &$form_state){
+	print_r($form_state['value']);
+	die;
+	
+}
+
+function tvn_page_form_alter(&$form, &$form_state, $form_id) {
+	//echo $form_id;
+	
+	
+	if($form_id == 'commerce_checkout_form_checkout'){
+		$form['account']['login']['mail']['#description'] = 'Already have an acount with us? <a href="/user/login">Log in</a>';
+		//echo "aaa";
+				
+		$form['#validate'][] = 'extra_check_out_form_validate';
+		
+	}
+	
+	if($form_id == 'commerce_checkout_form_checkout'){
+		
+		$form['buttons']['continue']['#value'] = 'Continue';
+		unset($form['buttons']['back']);
+		unset($form['buttons']['cancel']);
+	}
+	
+	if($form_id == 'commerce_checkout_form_shipping'){
+		
+		$form['buttons']['continue']['#value'] = 'Continue';
+		unset($form['buttons']['back']);
+		unset($form['buttons']['cancel']);
+	}
+
+	if($form_id == 'commerce_checkout_form_review'){
+		
+		$form['buttons']['continue']['#value'] = 'Continue';
+		unset($form['buttons']['back']);
+		unset($form['buttons']['cancel']);
+	}
+	
+	if($form_id == 'views_form_commerce_cart_form_default') {
+		 //$form_state['redirect'] = 'node';
+		 
+	}
+	
+	
+	if($form_id == 'views_exposed_form'){
+		
+	
+		//$color = array();
+		$vari1 = array();
+		$vari2 = array();
+		
+		$node = node_load(arg(1));
+		//echo '<pre>';//print_r($node);
+		$products = array();
+		if(count($node->field_products_items)>0){
+			$products = $node->field_products_items['und'];
+		}
+		foreach($products as $product_id=> $val){
+		
+			$product = commerce_product_load($val['product_id']);
+			
+			if(count($product->field_variation_1)>0){
+				$termname = taxonomy_term_load($product->field_variation_1['und'][0]['tid'])->name;
+				$vari1[$product->field_variation_1['und'][0]['tid']] = $termname;	
+			}
+			if(count($product->field_variation_2)>0){
+				//$term = $product->field_size['und'][0]['taxonomy_term'];
+				$termname = taxonomy_term_load($product->field_variation_2['und'][0]['tid'])->name;
+				$vari2[$product->field_variation_2['und'][0]['tid']] = $termname;	
+			}
+		}
+		$parent_vari1 = array();
+		$count_vari1 = 0;
+		foreach($vari1 as $row=>$val){
+			if($count_vari1 == 0){
+				$parent_vari1 = taxonomy_get_parents($row);
+			}
+			$count_vari1 ++;
+			
+		}
+		if(count($parent_vari1)> 0 ){
+			foreach($parent_vari1 as $row=>$val){
+				$new_arr_1 = array('All' => $val->name);
+				$vari1 = $new_arr_1 + $vari1;
+			}
+		}else{
+			$new_arr_1 = array('All' => 'All');
+			$vari1 = $new_arr_1 + $vari1;
+		}
+		
+		$parent_vari2 = array();
+		$count_vari2 = 0;
+		foreach($vari2 as $row=>$val){
+			if($count_vari2 == 0){
+				$parent_vari2 = taxonomy_get_parents($row);
+			}
+			$count_vari2 ++;
+			
+		}
+		if(count($parent_vari2)> 0 ){
+			foreach($parent_vari2 as $row=>$val){
+				$new_arr_2 = array('All' => $val->name);
+				//$vari2['All'] = $val->name;
+				$vari2 = $new_arr_2 + $vari2;
+			}
+		}else{
+			$new_arr_2 = array('All' => 'All' );
+			$vari2 = $new_arr_2 + $vari2;
+		}
+		
+		if(count($vari1)>1){
+			$form['field_variation_1_tid']['#options'] = $vari1;	
+		}else{
+			unset($form['field_variation_1_tid']);
+		}
+		if(count($vari2)>1){
+			$form['field_variation_2_tid']['#options'] = $vari2;	
+		}else{
+			unset($form['field_variation_2_tid']);
+		}	
+		
+		
+		
+		//array_unshift($form['#submit'], 'submitFormProductFilter');
+	}
+	
+}
+
+function submitFormProductFilter(&$form, &$form_state){
+	$color = array();
+	if(!empty($form_state['values']['field_size_tid'])&& $form_state['values']['field_size_tid'] != 'All') {
+		//echo $form_state['values']['field_size_tid'];
+		$color = array();
+		$size  = array();
+		$color['All'] = 'Color';
+		$size['All'] = 'Size';
+		$node = node_load(arg(1));
+		//echo '<pre>';//print_r($node);
+		$products = array();
+		if(count($node->field_products_items)>0){
+			$products = $node->field_products_items['und'];
+		}
+		foreach($products as $product_id=> $val){
+		
+			$product = commerce_product_load($val['product_id']);
+			//print_r($product);
+			
+			if(count($product->field_variation_1)>0&&$product->field_variation_1['und'][0]['tid']==$form_state['values']['field_size_tid']){
+				if(count($product->field_variation_2) > 0 ){
+					$termname = taxonomy_term_load($product->field_variation_2['und'][0]['tid'])->name;
+					$color[$product->field_variation_2['und'][0]['tid']] = $termname;	
+				}
+			}
+		}
+		//echo '<pre>';print_r($form);
+		
+		$form['field_variation_2_tid']['#options'] = $color;	
+		//unset($form['field_color_tid']);
+	}
+	
+}
+function tvn_page_commerce_price_formatted_components_alter(&$components, $price, $entity) {
+	// hook price format
+}
+function tvn_page_views_pre_view(&$view, &$display_id, &$args){
+	if($view->name == 'product_list'){
+		//echo '<pre>';print_r($view);
+		//die;
+	}
+	
+	
+}
+
+
+function tvn_page_commerce_modify_productdisplay_quantity_widget(&$form) {
+  // get the product id
+  /*$pid = $form['product_id']['#value'];
+
+  // get the options array if a select box is necessary
+  $options = array(1 => '1', 2 => '2',3 => '3', 4 => '4',5 => '5', 6 => '6',7 => '7', 8 => '8',9 => '9', 10 => '10');
+  
+  // if options were returned, update the widget
+  if (count($options)) {
+  	
+    $form['quantity']['#type'] = 'select';
+    $form['quantity']['#size'] = 1;
+    $form['quantity']['#options'] = $options;
+  }
+  */
+}
+
+function tvn_page_form_commerce_cart_add_to_cart_form_alter(&$form, &$form_state){
+	//hook form add to cart Minimun quality
+	
+	//if (strpos($form_id, 'commerce_cart_add_to_cart_form_') === 0) {
+	    tvn_page_commerce_modify_productdisplay_quantity_widget($form);
+	// }
+	
+	
+	$form['#validate'][] = 'tvn_page_form_validate';
+	
+	
+	
+}
+function tvn_page_form_validate($form, &$form_state) {
+	$product_id = $form_state['values']['product_id'];
+	$product = commerce_product_load($product_id);
+	$MOQ = $product->field_moq['und'][0]['value'];
+	$quanlity = $form_state['values']['quantity'];
+	// Random example, if the title is 'test' throw an error
+	if ($quanlity < $MOQ) {
+	  drupal_set_message('Minimum quantity per order is '.$MOQ,'error');
+	  form_set_error('product_id','');
+	}
+}
+function tvn_page_commerce_product_calculate_sell_price_line_item_alter($line_item) {
+  global $user;
+  $product_id = $line_item->commerce_product['und'][0]['product_id'];
+  $product = commerce_product_load($product_id);
+  $role = $user->roles;
+ 	foreach($role as $row){
+	 	$rolename = $row;
+ 	}
+ 	$rid = get_role_by_name($rolename);
+ 	$field = get_price_base_on_role($rid);
+ 	if($field !='commerce_price '){
+	 	$field = $product->$field;
+	 	$amount = $field['und'][0]['amount'];
+	 	//echo $amount;
+	 	$line_item->commerce_unit_price['und'][0]['amount'] = $amount;
+	 	$line_item->commerce_unit_price['und'][0]['data']['components'][0]['price']['amount'] = $amount;
+ 	}
+}
+
+function get_price_calculate($product_id){
+	global $user;
+	$product = commerce_product_load($product_id);
+ 	$role = $user->roles;
+ 	foreach($role as $row){
+	 	$rolename = $row;
+ 	}
+ 	$rid = get_role_by_name($rolename);
+ 	$field = get_price_base_on_role($rid);
+ 	if($field !='commerce_price '){
+	 	$field = $product->$field;
+	 	$amount = $field['und'][0]['amount'];
+	 	$currency_code = $field['und'][0]['currency_code'];
+	 	
+	 	return commerce_currency_format($amount, $currency_code, $product);
+	 	
+ 	}else{
+	 	return $output;
+ 	}
+}
+
+function tvn_page_commerce_cart_line_item_refresh($line_item, $order_wrapper){
+/*
+    $line_wrapper = entity_metadata_wrapper('commerce_line_item', $line_item);
+
+    $new_price = 100; //I use a function to calculate the value of $new_price
+
+    if(!empty($new_price)){
+        $line_wrapper->commerce_unit_price->amount->set($new_price);
+        $line_wrapper->save();
+    }*/
+}
+function get_role_by_name($name) {
+  $roles = user_roles();
+  return array_search($name, $roles);
+}
+
+function get_price_base_on_role($role){
+	
+	$field_price = 'commerce_price';
+	switch ($role) {
+	    case 4:
+	        $role = "Wholesaler";
+	        $field_price = 'field_wholesaler_price';
+	        break;
+	    case 13:
+	        $role =  "Price  - List";
+	        $field_price = 'commerce_price';
+	        break;
+	    case 5:
+	        $role =  "Sparky 1";
+	        $field_price = 'field_sparky_1_price';
+	        break;
+	   case 6:
+	        $role =  "Sparky 2";
+	        $field_price = 'field_sparky_2_price';
+	        break;
+	    case 7:
+	        $role = "Switchy 1";
+	        $field_price = 'field_switchy_1_price';
+	        break;
+	    case 8:
+	        $role =  "Switchy 2";
+	        $field_price = 'field_switchy_2_price';
+	        break;
+	    case 9:
+	        $role =  "Auto 1";
+	        $field_price = 'field_auto_1_price';
+	        break;
+	   case 10:
+	        $role =  "Auto 2";
+	        $field_price = 'field_auto_2_price';
+	        break;
+	    case 11:
+	        $role = "APPS 1";
+	        $field_price = 'field_apps_1_price';
+	        break;
+	    case 12:
+	        $role =  "STOW 1";
+	        $field_price = 'field_stow_1_price';
+	        break;
+	}
+	return $field_price;
+}
+function tvn_page_get_display_node_by_product_id($product_id, $product_field_name = 'field_products_items') {
+  $nid = '';
+  $query = "select nid from {node} n join {field_data_field_products_items} pro on n.nid = pro.`entity_id` WHERE pro.`field_products_items_product_id` = '".$product_id."'";
+  $result = db_query($query);
+  foreach($result as $row){
+	  $nid = $row->nid;
+  }
+  return $nid;
+}
+
+

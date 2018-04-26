@@ -1,0 +1,78 @@
+<?php
+  function tvn_block_theme() {
+    return array(
+      
+      'block_slider' => array(
+        'variables' => array('data' => NULL),
+        'template' => 'templates/block_slider'
+      ),
+      'block_product' => array(
+        'variables' => array('data' => NULL),
+        'template' => 'templates/block_product'
+      ),
+      
+      'block_Industries' => array(
+        'variables' => array('data' => NULL),
+        'template' => 'templates/block_Industries'
+      ),
+      
+      
+      'block_month_download' => array(
+        'variables' => array('data' => NULL),
+        'template' => 'templates/block_month_download'
+      ),
+      
+    );
+  }
+
+  function tvn_block_block_info() {
+    $blocks = array();
+  
+    $blocks['block_slider']['info'] = t('Block Image Slider');
+    $blocks['block_slider']['cache'] = DRUPAL_NO_CACHE;
+    
+    $blocks['block_product']['info'] = t('Block Slide Product');
+    $blocks['block_product']['cache'] = DRUPAL_NO_CACHE;
+    
+    $blocks['block_Industries']['info'] = t('Block Industries');
+    $blocks['block_Industries']['cache'] = DRUPAL_NO_CACHE;
+    
+    return $blocks;
+  }
+
+  function tvn_block_block_view($delta = '') {
+    global $base_url;
+    include_once('model/tvn_block.inc');
+    $block = array();
+    switch ($delta) {
+      
+      case 'block_slider':
+        $data = tvn_block_get_image_slider();
+        $block['content'] = theme('block_slider', array('data' => $data));
+        return $block;
+        
+      case 'block_product':
+      	$path = drupal_get_path('module', 'tvn_block');
+	  	//drupal_add_js($path . '/templates/js/jcarousellite_1.0.1.min.js');
+	  	
+	  	drupal_add_js($path . '/templates/js/jcarousellite_1.0.1c4.js');
+        $data = taxonomy_get_tree(2, $parent = 0, 1, $load_entities = FALSE);
+        $block['content'] = theme('block_product', array('data' => $data));
+        return $block;
+      
+       case 'block_Industries':
+        $data = node_load_multiple(array(), array('type'=>'industry'), $reset = FALSE);
+       
+        $block['content'] = theme('block_Industries', array('data' => $data));
+        return $block;
+      
+      default:
+      
+      
+      
+        break;
+    }
+  }
+
+
+
