@@ -1,0 +1,57 @@
+@charset "utf-8";
+/* Font-Face */
+@font-face {
+    font-family: 'MyriadPro';
+    src: url('fonts/myriadpro-regular.eot');
+    src: url('fonts/myriadpro-regular.eot?#iefix') format('embedded-opentype'),
+         url('fonts/myriadpro-regular.woff') format('woff'),
+         url('fonts/myriadpro-regular.ttf') format('truetype'),
+         url('fonts/myriadpro-regular.svg#MyriadProRegular') format('svg');
+	font-weight: 400;
+}
+@font-face {
+    font-family: 'MyriadPro';
+    src: url('fonts/myriadpro-it.eot');
+    src: url('fonts/myriadpro-it.eot?#iefix') format('embedded-opentype'),
+         url('fonts/myriadpro-it.woff') format('woff'),
+         url('fonts/myriadpro-it.ttf') format('truetype'),
+         url('fonts/myriadpro-it.svg#MyriadProItalic') format('svg');
+	font-weight: 400;
+	font-style: italic;
+}
+@font-face {
+    font-family: 'MyriadPro';
+    src: url('fonts/myriadpro-semibold.eot');
+    src: url('fonts/myriadpro-semibold.eot?#iefix') format('embedded-opentype'),
+         url('fonts/myriadpro-semibold.woff') format('woff'),
+         url('fonts/myriadpro-semibold.ttf') format('truetype'),
+         url('fonts/myriadpro-semibold.svg#MyriadProSemibold') format('svg');
+	font-weight: 600;
+}
+@font-face {
+    font-family: 'MyriadPro';
+    src: url('fonts/myriadpro-bold.eot');
+    src: url('fonts/myriadpro-bold.eot?#iefix') format('embedded-opentype'),
+         url('fonts/myriadpro-bold.woff') format('woff'),
+         url('fonts/myriadpro-bold.ttf') format('truetype'),
+         url('fonts/myriadpro-bold.svg#MyriadProBold') format('svg');
+	font-weight: 700;
+}
+@font-face {
+	font-family: "Square721 BT";
+	src: url('fonts/235534668-8941.eot');
+	src: url('fonts/235534668-8941.eot?#iefix') format('embedded-opentype'),
+		 url('fonts/235534668-8941.svg#Square721 BT') format('svg'),
+		 url('fonts/235534668-8941.woff') format('woff'),
+		 url('fonts/235534668-8941.ttf') format('truetype');
+	font-weight: 400;
+}
+@font-face {
+	font-family: "Square721 BT";
+	src: url('fonts/271545411-8940.eot');
+	src: url('fonts/271545411-8940.eot?#iefix') format('embedded-opentype'),
+		 url('fonts/271545411-8940.svg#Square721 BT') format('svg'),
+		 url('fonts/271545411-8940.woff') format('woff'),
+		 url('fonts/271545411-8940.ttf') format('truetype');
+	font-weight: 700;
+}
