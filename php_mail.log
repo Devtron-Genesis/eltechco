@@ -1,0 +1,1 @@
+[26-Apr-2018 22:09:04 Asia/Karachi] mail() on [/home/devtrong/public_html/sites/eltechco/modules/system/system.mail.inc:83]: To: a@b.com -- Headers: MIME-Version: 1.0 Content-Type: text/plain; charset=UTF-8; format=flowed; delsp=yes Content-Transfer-Encoding: 8Bit X-Mailer: Drupal Sender: a@b.com From: a@b.com
