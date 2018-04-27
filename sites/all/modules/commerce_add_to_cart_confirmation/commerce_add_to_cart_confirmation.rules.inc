@@ -39,10 +39,10 @@ function commerce_add_to_cart_confirmation_rules_add_to_cart_message($line_item,
   //$message .= views_embed_view('confirm_message_product_display', 'default', $line_item->line_item_id);
   $message .= '<div class="content_view_popup">'.views_embed_view('shopping_cart_form_popup', 'default',$line_item->order_id).'</div>';
  
-  //$message .= '<div class="button-wrapper">';
+  $message .= '<div class="button-wrapper">';
   $message .= '<div class="button checkout">' . l(t('Go to checkout'), 'cart') . '</div>';
   //$message .= '<div class="button continue"><span class="commerce-add-to-cart-confirmation-close">' . t('Continue shopping') . '</span></div>';
-  //$message .= '</div>';
+  $message .= '</div>';
   
   $close = t('Close');
 
