@@ -198,3 +198,8 @@ Drupal.behaviors.mymoduleAjaxView = {
     }
 }};
 */
+jQuery(document).ready(function(){
+	if(window.matchMedia('(max-width: 1024px)').matches) {
+		(jQuery)('.alert.alert-block.alert-dismissible').removeClass('.messages');
+	} 
+});

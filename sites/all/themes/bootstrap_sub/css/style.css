@@ -1150,6 +1150,15 @@ header#navbar{
 }
 
 @media all and (max-width: 1024px){
+	div.commerce_add_to_cart_confirmation_overlay {
+		display: none;
+	}
+	div.messages.commerce-add-to-cart-confirmation .message-inner .button-wrapper .button.checkout {
+		background: url('../img/button.png') no-repeat scroll 0 0 rgba(0, 0, 0, 0);
+	}
+	div.messages.commerce-add-to-cart-confirmation .message-inner .button-wrapper .button.continue {
+		background: url('../img/button.png') no-repeat scroll 0 0 rgba(0, 0, 0, 0);
+	}
 	.horizontal-tabs fieldset.horizontal-tabs-pane{
 		margin-bottom: 0;
 	}
