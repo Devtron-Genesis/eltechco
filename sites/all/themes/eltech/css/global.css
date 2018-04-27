@@ -3288,8 +3288,11 @@ top: -100px !important;
 
 /* custom css*/
 
-div#block-system-main {
+#block-system-main {
     display: none;
 }
 
+.page-cart #block-system-main {
+    display: block;
+}
 
