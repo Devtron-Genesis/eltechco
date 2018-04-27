@@ -17,13 +17,13 @@
 
       if ($('.commerce-add-to-cart-confirmation').length > 0) {
         // Add the background overlay.
-        $(overlayParentSelector).append('<div class="' + overlayClass + '"></div>');
+        $('body').append("<div class=\"commerce_add_to_cart_confirmation_overlay\"></div>");
 
         // Enable the close link.
-        $('.commerce-add-to-cart-confirmation-close').bind('click touchend', function(e) {
+        $('.commerce-add-to-cart-confirmation-close').live('click touchend', function(e) {
           e.preventDefault();
           $('.commerce-add-to-cart-confirmation').remove();
-          $('.' + overlayClass).remove();
+          $('.commerce_add_to_cart_confirmation_overlay').remove();
         });
       }
     }
