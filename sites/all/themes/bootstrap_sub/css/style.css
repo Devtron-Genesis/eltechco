@@ -1607,12 +1607,4 @@ header#navbar{
 .page-checkout #block-views-exp-search-result-page{
 	display: none;
 }
-/* custom css*/
 
-#block-system-main {
-    display: none;
-}
-
-.page-cart #block-system-main {
-    display: block;
-}

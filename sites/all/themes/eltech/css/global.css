@@ -3286,13 +3286,3 @@ top: -100px !important;
 #block-block-26{width: 50%;float: right;}
 .green_star{width:300px; height:auto;text-align:right;}
 
-/* custom css*/
-
-#block-system-main {
-    display: none;
-}
-
-.page-cart #block-system-main {
-    display: block;
-}
-
