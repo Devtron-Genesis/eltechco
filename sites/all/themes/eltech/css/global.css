@@ -1622,7 +1622,7 @@ display: none;
 	cursor: pointer;
 }
 .form-submit:hover{
-	background: url('../img/button-hover.png') no-repeat;
+	background: url('../img/button-hover.png') no-repeat !important;
 	color: #4c4c4c;
 }
  #block-webform-client-block-16 .form-submit:hover {
