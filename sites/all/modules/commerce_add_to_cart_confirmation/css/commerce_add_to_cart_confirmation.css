@@ -206,6 +206,15 @@ div.messages.commerce-add-to-cart-confirmation .view-confirm-message-product-dis
   color: #2698f2;
 }
 
+li.first .added-product-title {
+  display: none;
+}
+li.last .button.continue {
+    display: none;
+}
+div#edit-actions {
+  display: none;
+}
 /*
  * @media rules
  */
@@ -229,5 +238,10 @@ div.messages.commerce-add-to-cart-confirmation .view-confirm-message-product-dis
   }
   div.messages.commerce-add-to-cart-confirmation .view-confirm-message-product-display {
     width: 100%;
+  }
+}
+@media (min-width: 976px) {
+  li.first .button.checkout {
+    display: none;
   }
 }
