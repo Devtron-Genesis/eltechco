@@ -1210,7 +1210,7 @@ h1 span {
 	background: #fff;
 	padding: 2px 5px;
 	margin: 0;
-	width: 268px;
+	/*width: 268px;*/
 	border: 1px solid #cecece;
 	-webkit-box-shadow: inset 2px 2px 9px 0px rgba(208, 208, 208, 0.75);
 	-moz-box-shadow: inset 2px 2px 9px 0px rgba(208, 208, 208, 0.75);
