@@ -1621,7 +1621,7 @@ display: none;
 	border: none;
 	cursor: pointer;
 }
-.form-submit:hover{
+.page-node-5 .form-submit:hover{
 	background: url('../img/button-hover.png') no-repeat !important;
 	color: #4c4c4c;
 }
