@@ -1153,7 +1153,7 @@ header#navbar{
 	div.commerce_add_to_cart_confirmation_overlay {
 		display: none;
 	}
-	.button-wrapper {
+	.last .button-wrapper {
 		display: none;
 	}
 	.horizontal-tabs fieldset.horizontal-tabs-pane{
@@ -1608,4 +1608,3 @@ header#navbar{
 .page-checkout #block-views-exp-search-result-page{
 	display: none;
 }
-
