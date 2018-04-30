@@ -3286,3 +3286,9 @@ top: -100px !important;
 #block-block-26{width: 50%;float: right;}
 .green_star{width:300px; height:auto;text-align:right;}
 
+a.jcarousel-next.jcarousel-next-horizontal:hover {
+    background-position: right;
+}
+a.jcarousel-prev.jcarousel-prev-horizontal:hover {
+    background-position: left;
+}
