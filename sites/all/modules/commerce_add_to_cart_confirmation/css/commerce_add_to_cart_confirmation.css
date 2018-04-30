@@ -212,7 +212,7 @@ li.first .added-product-title {
 li.last .button.continue {
     display: none;
 }
-div.form-group {
+div.commerce-line-item-actions.form-group button#edit-submit {
   display: none;
 }
 /*
